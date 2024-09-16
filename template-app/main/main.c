@@ -15,35 +15,42 @@
 #define ZERO_LOAD 16740795.0
 #define Kilo 16679106.0
 
+scale gas;
+
+#define ESP_INTR_FLAG_DEFAULT 0
+
 
 void  Print(void *pvParamters){
     while(1){
 
-     if(scale_is_ready()){
+     if(gas.flag == 1){
        // printf("Decimal: %lu, Hex: %lx\n", byte, byte);
-       int32_t a = (uint32_t)scale_get_byte()  - ZERO_LOAD;
-       double b = a*(1/(Kilo-ZERO_LOAD));
-       printf("%f\n" ,b);
+       int32_t NetWeight_ADC = (gas.byte-ZERO_LOAD) ;
+       double Weight_Kg = NetWeight_ADC*(1/(Kilo-ZERO_LOAD));
+       printf("%f\n" ,Weight_Kg);
 
-       scale_reset();
+        gas.byte =0;
+        gas.flag = 0;
     }
 
-    vTaskDelay(10);
+        vTaskDelay(10);
     }
 }
 
 
 void app_main(void)
 {
+  
 
-    scale_init(HX711_ON_PIN);
+    scale_init(HX711_ON_PIN, &gas);
 
-    // Create task to print value (you can do this in the main task but whatever)
+    
     xTaskCreate(&Print, "Print", 2048, NULL, 1, NULL);
 
     while (1)
     {
         vTaskDelay(1000);
+
     }
     
 }

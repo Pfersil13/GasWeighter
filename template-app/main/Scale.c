@@ -17,7 +17,6 @@ uint8_t bit_postion;
 
 gpio_num_t scale_pin_on = 0;
 
-scale gas;
 
 
 void IRAM_ATTR gpio_isr_handler(void* arg)
@@ -112,9 +111,6 @@ static void setup_scale( scale *scale){
     HX711_ON.pin_bit_mask =(1ULL << scale_pin_on);
 
     gpio_config(&DOUT);
-
-    
-
     gpio_config(&SCK);
     gpio_set_level(SCK_PIN,0);
 
@@ -162,33 +158,37 @@ static void setup_scale( scale *scale){
     //install gpio isr service
     gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
      //hook isr handler for specific gpio pin
-    gpio_isr_handler_add(DOUT_PIN, gpio_isr_handler, (void*) &gas);
+    gpio_isr_handler_add(DOUT_PIN, gpio_isr_handler, (void*) &scale);
+
+    
+    
+    //xTaskCreate(&gpio_task_example, "gpio_task_example", 2048, NULL, 10, NULL);
 }
 
 
-void scale_reset(void){
-    gas.byte =0;
-    gas.flag = 0;
+void scale_reset(scale *gas){
+    gas->byte =0;
+    gas->flag = 0;
 }
 
 
-bool scale_is_ready(){
-  return (gas.flag == 1);
+bool scale_is_ready(scale *gas){
+  return (gas->flag == 1);
 }
 
-uint8_t scale_get_byte(){
-  return gas.byte;
+uint8_t scale_get_byte(scale *gas){
+  return gas->byte;
 }
 
-void scale_init(gpio_num_t pin_on)
+void scale_init(gpio_num_t pin_on, scale *gas)
 {
 
   scale_pin_on = pin_on;
 
-  gas.flag = 1;
+  gas->flag = 1;
 
   // Setup scale
-  setup_scale(&gas);
+  setup_scale(gas);
 
   // Init task to read (and probably convert) scale
   xTaskCreate(&gpio_task_example, "gpio_task_example", 2048, NULL, 10, NULL);

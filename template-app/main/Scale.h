@@ -2,6 +2,7 @@
     #define SCALE_H
 
     #define NUMBER_OF_PULSES 25
+
     #define SCK_PIN  11
     #define DOUT_PIN  10
 
@@ -28,10 +29,10 @@
         uint64_t event_count;
     } example_queue_element_t;
 
-    void scale_init(gpio_num_t pin_on);
-    void scale_reset(void);
-    bool scale_is_ready();
-    uint8_t scale_get_byte();
+    void scale_init(gpio_num_t pin_on,scale *gas);
+    void scale_reset(scale *gas);
+    bool scale_is_ready(scale *gas);
+    uint8_t scale_get_byte(scale *gas);
 
 
 #endif 

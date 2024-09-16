@@ -15,6 +15,7 @@
     "cstddef": "c",
     "freertos.h": "c",
     "stdlib.h": "c",
-    "gptimer.h": "c"
+    "gptimer.h": "c",
+    "random": "c"
   }
 }
