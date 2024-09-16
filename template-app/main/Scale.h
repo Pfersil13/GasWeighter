@@ -22,6 +22,8 @@
     typedef  struct {
         uint32_t byte;
         bool flag;
+        uint32_t zero_load;
+        uint32_t kilo;
     }scale;
 
 
@@ -32,7 +34,7 @@
     void scale_init(gpio_num_t pin_on,scale *gas);
     void scale_reset(scale *gas);
     bool scale_is_ready(scale *gas);
-    uint8_t scale_get_byte(scale *gas);
-
+    uint32_t scale_get_byte(scale *gas);
+    double scale_get_weight_Kg(scale *gas);
 
 #endif 

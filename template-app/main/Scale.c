@@ -15,6 +15,8 @@ int i = 0;
 bool bit_read;
 uint8_t bit_postion;
 
+
+
 gpio_num_t scale_pin_on = 0;
 
 
@@ -176,9 +178,21 @@ bool scale_is_ready(scale *gas){
   return (gas->flag == 1);
 }
 
-uint8_t scale_get_byte(scale *gas){
+uint32_t scale_get_byte(scale *gas){
   return gas->byte;
 }
+
+double scale_get_weight_Kg(scale *gas){
+    uint32_t ADC_Value =  scale_get_byte(gas);
+    int32_t net_ADC = ADC_Value - gas->zero_load;
+    double Weight_Kg = net_ADC*(-1.0/(gas->zero_load - gas->kilo));
+
+    gas->byte =0;
+    gas->flag = 0;
+
+  return Weight_Kg;
+}
+
 
 void scale_init(gpio_num_t pin_on, scale *gas)
 {
@@ -186,7 +200,8 @@ void scale_init(gpio_num_t pin_on, scale *gas)
   scale_pin_on = pin_on;
 
   gas->flag = 1;
-
+  gas->zero_load = 16740795;
+  gas->kilo = 16679106;
   // Setup scale
   setup_scale(gas);
 

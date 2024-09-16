@@ -16,6 +16,15 @@
     "freertos.h": "c",
     "stdlib.h": "c",
     "gptimer.h": "c",
-    "random": "c"
+    "random": "c",
+    "compare": "c",
+    "cstdint": "c",
+    "mqtt.h": "c",
+    "wifi.h": "c",
+    "event_groups.h": "c",
+    "esp_mac.h": "c",
+    "wifi_gas.h": "c",
+    "common.h": "c",
+    "scale.h": "c"
   }
 }
