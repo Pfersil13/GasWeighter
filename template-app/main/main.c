@@ -13,8 +13,10 @@
 #include "MQTT.h"
 #include "Wifi_gas.h"
 
-/** GLOBALS **/
+#include "WIFI/Wifi_AP.h"
 
+/** GLOBALS **/
+int k;
 // task tag
 static const char *TAG = "WIFI";
 
@@ -34,9 +36,12 @@ void  Print(void *pvParamters){
 
      if(gas.flag == 1){
        printf("%f\n" ,scale_get_weight_Kg(&gas));
-    }
+        //mqtt_publish();
+        gpio_intr_enable(DOUT_PIN);
 
-        vTaskDelay(10);
+    }
+    
+        vTaskDelay(100);
     }
 }
 
@@ -67,11 +72,26 @@ void app_main(void)
 	if (WIFI_SUCCESS != status)
 	{
 		ESP_LOGI(TAG, "Failed to associate to AP, dying...");
+
+    //Create custom AP
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+      ESP_ERROR_CHECK(nvs_flash_erase());
+      ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(ret);
+
+    ESP_LOGI(TAG, "ESP_WIFI_MODE_AP");
+    wifi_init_softap();
+
 		return;
 	}
 	
-	
+   
+
+
+
     /* TEST MQTT*/
+    /*
    ESP_LOGI(TAG, "[APP] Startup..");
     ESP_LOGI(TAG, "[APP] Free memory: %" PRIu32 " bytes", esp_get_free_heap_size());
     ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
@@ -86,12 +106,12 @@ void app_main(void)
 
    mqtt_app_start();
 
-    
+    */
     while (1)
     {
-        vTaskDelay(1000);
-        printf("MQTT Blocking\n");
-
+        vTaskDelay(100);
+        //printf("MQTT Blocking\n");
+        //printf("%d\n", k);
     }
     
 }

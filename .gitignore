@@ -26,3 +26,5 @@ Hardware_ESP32/GasWeighter ESP32-backups/GasWeighter ESP32-2024-08-29_160554.zip
 Hardware_ESP32/GasWeighter ESP32-backups/GasWeighter ESP32-2024-08-29_162119.zip
 *.zip
 v5.3.1/esp-idf/
+template-app/main/WIFI/Secrets.h
+template-app/main/WIFI/Secrets.h

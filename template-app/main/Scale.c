@@ -12,6 +12,7 @@ gpio_config_t DOUT;
 gpio_config_t HX711_ON;
 
 int i = 0;
+extern int k;
 bool bit_read;
 uint8_t bit_postion;
 
@@ -24,6 +25,7 @@ gpio_num_t scale_pin_on = 0;
 void IRAM_ATTR gpio_isr_handler(void* arg)
 {
     scale *arg2 = (scale*)arg;
+    k++;
     xQueueSendFromISR(gpio_evt_queue, &arg2, NULL);
 }
 
@@ -40,7 +42,7 @@ void gpio_task_example(void* arg)
                 
             }
 
-            vTaskDelay(10);
+            vTaskDelay(100);
         }
     }
 }
@@ -206,5 +208,5 @@ void scale_init(gpio_num_t pin_on, scale *gas)
   setup_scale(gas);
 
   // Init task to read (and probably convert) scale
-  xTaskCreate(&gpio_task_example, "gpio_task_example", 2048, NULL, 10, NULL);
+  xTaskCreate(&gpio_task_example, "gpio_task_example", 2048, NULL, 5, NULL);
 }

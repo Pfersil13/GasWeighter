@@ -10,7 +10,14 @@
 #include "MQTT.h"
 #include "WIFI/Secrets.h"
 static const char *TAG = "mqtt_example";
+//esp_mqtt_client_config_t mqtt_cfg;
+ esp_mqtt_client_config_t  mqtt_cfg = {
+        .broker.address.uri = URL,
+        .task.priority = 10,
+    };
+esp_mqtt_client_handle_t client;
 
+//esp_mqtt_client_handle_t client;
 
 static void log_error_if_nonzero(const char *message, int error_code)
 {
@@ -35,6 +42,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     esp_mqtt_event_handle_t event = event_data;
     esp_mqtt_client_handle_t client = event->client;
     int msg_id;
+    /*
     switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
@@ -83,42 +91,25 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     default:
         ESP_LOGI(TAG, "Other event id:%d", event->event_id);
         break;
-    }
+
+    }*/
 }
 
 void mqtt_app_start(void)
 {
-    esp_mqtt_client_config_t mqtt_cfg = {
-        .broker.address.uri = URL,
-    };
-#if CONFIG_BROKER_URL_FROM_STDIN
-    char line[128];
-
-    if (strcmp(mqtt_cfg.broker.address.uri, "FROM_STDIN") == 0) {
-        int count = 0;
-        printf("Please enter url of mqtt broker\n");
-        while (count < 128) {
-            int c = fgetc(stdin);
-            if (c == '\n') {
-                line[count] = '\0';
-                break;
-            } else if (c > 0 && c < 127) {
-                line[count] = c;
-                ++count;
-            }
-            vTaskDelay(10 / portTICK_PERIOD_MS);
-        }
-        mqtt_cfg.broker.address.uri = line;
-        printf("Broker url: %s\n", line);
-    } else {
-        ESP_LOGE(TAG, "Configuration mismatch: wrong broker url");
-        abort();
-    }
-#endif /* CONFIG_BROKER_URL_FROM_STDIN */
-
-    esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
+   
+    client = esp_mqtt_client_init(&mqtt_cfg);
     /* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
-    esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
+    //esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
     esp_mqtt_client_start(client);
+    esp_mqtt_client_publish(client,"A","B",0,1,0);
+
 }
 
+
+void mqtt_publish(){
+ 
+    //esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
+
+     esp_mqtt_client_publish(client,"A","B",0,1,0);
+}

@@ -25,6 +25,14 @@
     "esp_mac.h": "c",
     "wifi_gas.h": "c",
     "common.h": "c",
-    "scale.h": "c"
+    "scale.h": "c",
+    "bitset": "c",
+    "algorithm": "c",
+    "format": "c",
+    "sys.h": "c",
+    "err.h": "c",
+    "param.h": "c",
+    "esp_sleep.h": "c",
+    "esp_system.h": "c"
   }
 }
