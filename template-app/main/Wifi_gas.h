@@ -31,5 +31,5 @@ static void ip_event_handler(void* arg, esp_event_base_t event_base,int32_t even
 
 esp_err_t connect_wifi();
 esp_err_t connect_tcp_server(void);
-
+void readWifiSecrets();
 #endif

@@ -14,6 +14,7 @@
 #include "Wifi_gas.h"
 
 #include "WIFI/Wifi_AP.h"
+#include "WebServer/Webserver.h"
 
 /** GLOBALS **/
 int k;
@@ -28,7 +29,6 @@ static const char *TAG = "WIFI";
 scale gas;
 
 #define ESP_INTR_FLAG_DEFAULT 0
-
 
 
 void  Print(void *pvParamters){
@@ -50,12 +50,16 @@ void  Print(void *pvParamters){
 
 void app_main(void)
 {
-  
+ 
+   /* Initialize file storage */
+    const char* base_path = "/data";
+    ESP_ERROR_CHECK(example_mount_storage(base_path));
+
 
     scale_init(HX711_ON_PIN, &gas);
 
     
-    xTaskCreate(&Print, "Print", 2048, NULL, 1, NULL);
+    xTaskCreate(&Print, "Print", 2*2048, NULL, 1, NULL);
     /*WIFI*/
    esp_err_t status = WIFI_FAILURE;
 
@@ -82,10 +86,17 @@ void app_main(void)
 
     ESP_LOGI(TAG, "ESP_WIFI_MODE_AP");
     wifi_init_softap();
-
-		return;
+   
 	}
-	
+
+   
+    
+    /* Start the file server */
+    //ESP_ERROR_CHECK(example_start_file_server(base_path));
+    ESP_LOGI(TAG, "File server started");
+    
+
+	start_webserver();
    
 
 

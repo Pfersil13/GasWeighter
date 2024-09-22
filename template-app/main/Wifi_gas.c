@@ -8,7 +8,8 @@
 
 // event group to contain status information
 static EventGroupHandle_t wifi_event_group;
-
+char SSID[20], PASS[20];
+int SSID_INDEX, PASS_INDEX;
 // retry tracker
 static int s_retry_num = 0;
 
@@ -87,12 +88,11 @@ esp_err_t connect_wifi()
                                                         &ip_event_handler,
                                                         NULL,
                                                         &got_ip_event_instance));
+    readWifiSecrets();
 
     /** START THE WIFI DRIVER **/
     wifi_config_t wifi_config = {
         .sta = {
-            .ssid = SSID,
-            .password = PASSWORD,
 	     .threshold.authmode = WIFI_AUTH_WPA2_PSK,
             .pmf_cfg = {
                 .capable = true,
@@ -100,6 +100,16 @@ esp_err_t connect_wifi()
             },
         },
     };
+
+    for(int i = 0; i < SSID_INDEX-1; i++){
+        wifi_config.sta.ssid[i]= SSID[i];
+    }
+    for(int i = 0; i < PASS_INDEX-1; i++){
+        wifi_config.sta.password[i]= PASS[i];
+    }
+
+    printf("%s\n", wifi_config.sta.ssid);
+    printf("%s\n", wifi_config.sta.password);
 
     // set the wifi controller to be a station
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
@@ -179,4 +189,29 @@ esp_err_t connect_tcp_server(void)
     }
 
     return TCP_SUCCESS;
+}
+
+
+void readWifiSecrets(){
+
+     FILE* f = fopen("/data/WifiSecrets.txt", "r");
+        fgets(SSID,sizeof(SSID),f);
+        fgets(PASS,sizeof(PASS),f);
+
+        for(int i = 0; i < sizeof(SSID); i++){
+              if(SSID[i] == '\n'){
+                SSID_INDEX = i;
+            }
+        }
+
+        for(int i = 0; i < sizeof(PASS); i++){
+            if(PASS[i] == '\n'){
+                PASS_INDEX = i;
+            }
+        }
+
+        printf("%s\n", SSID);
+        printf("%s\n", PASS);
+        fclose(f);
+
 }
