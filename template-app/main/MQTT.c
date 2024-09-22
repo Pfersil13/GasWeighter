@@ -9,6 +9,43 @@
 
 #include "MQTT.h"
 #include "WIFI/Secrets.h"
+
+#define TOPIC_TEMP "homeassistant/sensor/gasTemp/config"
+#define PAYLOAD_TEMP "{\n   \"name\":\"Gas Temperature\",\n   \"unique_id\":\"gasTempMeasure\",\n   \"state_topic\":\"state/temperature\",\n   \"unit_of_measurement\":\"°C\",\n  \n   \"device\": {\n     \"name\":\"GasWeighter\",\n     \"identifiers\":\"GasWeighter_MAC\",\n     \"manufacturer\":\"Zeeta\",\n     \"model\":\"ESP32s3\",\n     \"hw_version\":\"1.0\",\n     \"sw_version\":\"1\"\n  }\n}"
+
+#define TOPIC_GAS "homeassistant/sensor/gasKg/config"
+#define PAYLOAD_GAS "{\n   \"name\":\"Gas Weight\",\n   \"unique_id\":\"gasMassMeasure\",\n   \"state_topic\":\"state/mass\",\n   \"unit_of_measurement\":\"kg\",\n  \"device\": {\n     \"name\":\"GasWeighter\",\n     \"identifiers\":\"GasWeighter_MAC\"\n  }\n}"
+
+#define TOPIC_GAS_DATA "state/mass"
+/*
+{
+   "name":"Gas Temperature",
+   "unique_id":"gasTempMeasure",
+   "state_topic":"stat/mydevice/temperature",
+   "unit_of_measurement":"°C",
+  
+   "device": {
+     "name":"GasWeighter",
+     "identifiers":"GasWeighter_MAC",
+     "manufacturer":"Zeeta",
+     "model":"ESP32s3",
+     "hw_version":"1.0",
+     "sw_version":"1"
+  }
+}
+
+{
+   "name":"Gas Weight",
+   "unique_id":"gasMassMeasure",
+   "state_topic":"state/mass",
+   "unit_of_measurement":"kg",
+  "device": {
+     "name":"GasWeighter",
+     "identifiers":"GasWeighter_MAC"
+  }
+}
+*/
+
 static const char *TAG = "mqtt_example";
 //esp_mqtt_client_config_t mqtt_cfg;
  esp_mqtt_client_config_t  mqtt_cfg = {
@@ -102,14 +139,16 @@ void mqtt_app_start(void)
     /* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
     //esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
     esp_mqtt_client_start(client);
-    esp_mqtt_client_publish(client,"A","B",0,1,0);
-
+    //esp_mqtt_client_publish(client,"A","B",0,1,0);
+    esp_mqtt_client_publish(client,TOPIC_TEMP,PAYLOAD_TEMP,0,1,0);
+    esp_mqtt_client_publish(client,TOPIC_GAS,PAYLOAD_GAS,0,1,0);
 }
 
 
-void mqtt_publish(){
+void mqtt_publish(double data){
  
     //esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
-
-     esp_mqtt_client_publish(client,"A","B",0,1,0);
+    char arr[sizeof(data)];
+    snprintf(arr,sizeof(data), "%.3lf", data); 
+    esp_mqtt_client_publish(client,TOPIC_GAS_DATA ,arr,0,1,0);
 }

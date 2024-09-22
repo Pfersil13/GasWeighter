@@ -22,13 +22,14 @@
 #include "lwip/netdb.h"
 //#include "WIFI/protocol_examples_common/include/protocol_examples_common.h"
 
+#include "cJSON.h"
 #include "esp_log.h"
 #include "mqtt_client.h"
 
 static void log_error_if_nonzero(const char *message, int error_code);
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data);
 void mqtt_app_start(void);
-void mqtt_publish();
+void mqtt_publish(double data);
 
 
 #endif

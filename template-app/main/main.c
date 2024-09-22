@@ -17,7 +17,8 @@
 #include "WebServer/Webserver.h"
 
 /** GLOBALS **/
-int k;
+int k,times;
+double val = 0;
 // task tag
 static const char *TAG = "WIFI";
 
@@ -33,15 +34,32 @@ scale gas;
 
 void  Print(void *pvParamters){
     while(1){
+       
+        if(gas.flag == 1){
+           
+            double value = scale_get_weight_Kg(&gas);
+            if(value > 0){
+                times++;
+                val += value;
 
-     if(gas.flag == 1){
-       printf("%f\n" ,scale_get_weight_Kg(&gas));
-        //mqtt_publish();
-        gpio_intr_enable(DOUT_PIN);
+                printf("%f\n" ,value);
+           
+                gpio_intr_enable(DOUT_PIN);
 
-    }
+                if (times >= 100){
+                    printf("SendMQTT: %f\n" ,val/(times));
+                    mqtt_publish(val/(times));
+                    times = 0;
+                    val = 0;
+                    vTaskDelay(1000);
+                }
+                } 
+                }       
+        
+        
+     
     
-        vTaskDelay(100);
+        vTaskDelay(10);
     }
 }
 
@@ -59,7 +77,6 @@ void app_main(void)
     scale_init(HX711_ON_PIN, &gas);
 
     
-    xTaskCreate(&Print, "Print", 2*2048, NULL, 1, NULL);
     /*WIFI*/
    esp_err_t status = WIFI_FAILURE;
 
@@ -79,18 +96,35 @@ void app_main(void)
 
     //Create custom AP
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-      ESP_ERROR_CHECK(nvs_flash_erase());
-      ret = nvs_flash_init();
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        ret = nvs_flash_init();
     }
-    ESP_ERROR_CHECK(ret);
 
+    ESP_ERROR_CHECK(ret);
     ESP_LOGI(TAG, "ESP_WIFI_MODE_AP");
     wifi_init_softap();
    
-	}
+	}else
+    {
+        /* TEST MQTT*/
+        ESP_LOGI(TAG, "[APP] Startup..");
+        ESP_LOGI(TAG, "[APP] Free memory: %" PRIu32 " bytes", esp_get_free_heap_size());
+        ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
 
-   
+        esp_log_level_set("*", ESP_LOG_INFO);
+        esp_log_level_set("mqtt_client", ESP_LOG_VERBOSE);
+        esp_log_level_set("mqtt_example", ESP_LOG_VERBOSE);
+        esp_log_level_set("transport_base", ESP_LOG_VERBOSE);
+        esp_log_level_set("esp-tls", ESP_LOG_VERBOSE);
+        esp_log_level_set("transport", ESP_LOG_VERBOSE);
+        esp_log_level_set("outbox", ESP_LOG_VERBOSE);
+
+        mqtt_app_start();
+            xTaskCreate(&Print, "Print", 2*2048, NULL, 1, NULL);
+
+    }
     
+
     /* Start the file server */
     //ESP_ERROR_CHECK(example_start_file_server(base_path));
     ESP_LOGI(TAG, "File server started");
@@ -101,23 +135,6 @@ void app_main(void)
 
 
 
-    /* TEST MQTT*/
-    /*
-   ESP_LOGI(TAG, "[APP] Startup..");
-    ESP_LOGI(TAG, "[APP] Free memory: %" PRIu32 " bytes", esp_get_free_heap_size());
-    ESP_LOGI(TAG, "[APP] IDF version: %s", esp_get_idf_version());
-
-    esp_log_level_set("*", ESP_LOG_INFO);
-    esp_log_level_set("mqtt_client", ESP_LOG_VERBOSE);
-    esp_log_level_set("mqtt_example", ESP_LOG_VERBOSE);
-    esp_log_level_set("transport_base", ESP_LOG_VERBOSE);
-    esp_log_level_set("esp-tls", ESP_LOG_VERBOSE);
-    esp_log_level_set("transport", ESP_LOG_VERBOSE);
-    esp_log_level_set("outbox", ESP_LOG_VERBOSE);
-
-   mqtt_app_start();
-
-    */
     while (1)
     {
         vTaskDelay(100);
@@ -126,3 +143,4 @@ void app_main(void)
     }
     
 }
+
